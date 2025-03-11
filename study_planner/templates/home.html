@@ -1,0 +1,15 @@
+<form method="POST">
+    {% csrf_token %}
+    <label for="task_title">Enter Task:</label>
+    <input type="text" id="task_title" name="task_title" placeholder="e.g., Learn Python Basics" required>
+    <button type="submit" style="padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">
+        Generate Study Plan
+    </button>
+</form>
+
+{% if study_plan %}
+    <h2>AI-Generated Study Plan</h2>
+    <p>{{ study_plan }}</p>
+{% else %}
+    <p>No study plan generated yet. Enter a task above!</p>
+{% endif %}

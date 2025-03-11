@@ -1,15 +1,91 @@
-<form method="POST">
-    {% csrf_token %}
-    <label for="task_title">Enter Task:</label>
-    <input type="text" id="task_title" name="task_title" placeholder="e.g., Learn Python Basics" required>
-    <button type="submit" style="padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">
-        Generate Study Plan
-    </button>
-</form>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Generated Study Plan</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI-Generated Study Plan</h1>
 
-{% if study_plan %}
-    <h2>AI-Generated Study Plan</h2>
-    <p>{{ study_plan }}</p>
-{% else %}
-    <p>No study plan generated yet. Enter a task above!</p>
-{% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <label for="task_title">Enter Task:</label>
+            <input type="text" id="task_title" name="task_title" placeholder="e.g., Learn Python Basics" required>
+            <button type="submit">Generate Study Plan</button>
+        </form>
+
+        {% if study_plan %}
+            <h2>Task: {{ study_plan.task|default:"Not available" }}</h2>
+
+            <h3>Goal of the Task:</h3>
+            <p>{{ study_plan.goal|default:"Not available" }}</p>
+
+            <h3>Time Commitment:</h3>
+            <p>{{ study_plan.time_commitment|default:"Not available" }}</p>
+
+            <h3>Recommended Resources:</h3>
+            {% if study_plan.recommended_resources %}
+                <ul>
+                    {% for resource_type, resources in study_plan.recommended_resources.items %}
+                        <li><strong>{{ resource_type|capfirst }}</strong>:
+                            <ul>
+                                {% for resource in resources %}
+                                    <li>{{ resource }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No resources available.</p>
+            {% endif %}
+
+            <h3>Weekly Breakdown:</h3>
+            {% if study_plan.weekly_breakdown %}
+                <ul>
+                    {% for week in study_plan.weekly_breakdown %}
+                        <li><strong>Week {{ week.week }}</strong>:
+                            <ul>
+                                {% for topic in week.topics %}
+                                    <li>{{ topic }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No weekly breakdown available.</p>
+            {% endif %}
+
+            <h3>Daily Breakdown:</h3>
+            {% if study_plan.daily_breakdown %}
+                <ul>
+                    {% for day in study_plan.daily_breakdown %}
+                        <li><strong>Day {{ day.day }}</strong>:
+                            <p>Study Time: {{ day.study_time }}</p>
+                            <p>Topics: {{ day.topics|join:", " }}</p>
+                            <p>Breaks: {{ day.breaks|join:", " }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No daily breakdown available.</p>
+            {% endif %}
+
+            <h3>Tips for Success:</h3>
+            {% if study_plan.tips %}
+                <ul>
+                    {% for tip in study_plan.tips %}
+                        <li>{{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No tips available.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,12 +1,15 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿<!-- <!DOCTYPE html> 
+<html lang="en">-->
+{% extends 'base.html' %}
+
+{% block content %}
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Generated Study Plan</title>
-    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
+
     <div class="container">
         <h1>AI-Generated Study Plan</h1>
 
@@ -17,75 +20,22 @@
             <button type="submit">Generate Study Plan</button>
         </form>
 
+
         {% if study_plan %}
             <h2>Task: {{ study_plan.task|default:"Not available" }}</h2>
 
-            <h3>Goal of the Task:</h3>
-            <p>{{ study_plan.goal|default:"Not available" }}</p>
+            {% include 'partials/study_details.html' %}
 
-            <h3>Time Commitment:</h3>
-            <p>{{ study_plan.time_commitment|default:"Not available" }}</p>
+            {% include 'partials/weekly_breakdown.html' %}
 
-            <h3>Recommended Resources:</h3>
-            {% if study_plan.recommended_resources %}
-                <ul>
-                    {% for resource_type, resources in study_plan.recommended_resources.items %}
-                        <li><strong>{{ resource_type|capfirst }}</strong>:
-                            <ul>
-                                {% for resource in resources %}
-                                    <li>{{ resource }}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No resources available.</p>
-            {% endif %}
+            {% include 'partials/daily_breakdown.html' %}
 
-            <h3>Weekly Breakdown:</h3>
-            {% if study_plan.weekly_breakdown %}
-                <ul>
-                    {% for week in study_plan.weekly_breakdown %}
-                        <li><strong>Week {{ week.week }}</strong>:
-                            <ul>
-                                {% for topic in week.topics %}
-                                    <li>{{ topic }}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No weekly breakdown available.</p>
-            {% endif %}
+            {% include 'partials/tips.html' %}
 
-            <h3>Daily Breakdown:</h3>
-            {% if study_plan.daily_breakdown %}
-                <ul>
-                    {% for day in study_plan.daily_breakdown %}
-                        <li><strong>Day {{ day.day }}</strong>:
-                            <p>Study Time: {{ day.study_time }}</p>
-                            <p>Topics: {{ day.topics|join:", " }}</p>
-                            <p>Breaks: {{ day.breaks|join:", " }}</p>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No daily breakdown available.</p>
-            {% endif %}
-
-            <h3>Tips for Success:</h3>
-            {% if study_plan.tips %}
-                <ul>
-                    {% for tip in study_plan.tips %}
-                        <li>{{ tip }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No tips available.</p>
-            {% endif %}
         {% endif %}
+
     </div>
-</body>
-</html>
+<!-- </body>
+</html> -->
+{% endblock %}
+

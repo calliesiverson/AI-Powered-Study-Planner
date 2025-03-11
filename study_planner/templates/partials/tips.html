@@ -1,0 +1,10 @@
+<h3>Tips for Success:</h3>
+            {% if study_plan.tips %}
+                <ul>
+                    {% for tip in study_plan.tips %}
+                        <li>{{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No tips available.</p>
+            {% endif %}

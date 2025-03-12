@@ -1,22 +1,39 @@
 from django.shortcuts import render, redirect
 from .models import StudyTask
 from .utils import generate_study_plan
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login as auth_login
+
+def login(request):
+    if request.method == "POST":
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect("home")  # Redirect to homepage
+    else:
+        form = AuthenticationForm()
+    return render(request, "accounts/login.html", {"form": form})
 
 def signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Log the user in after signing up
-            return redirect('home')  # Redirect to home page after successful signup
+            auth_login(request, user)  # Log user in after signup
+            return redirect("home")  # Redirect to homepage
     else:
         form = UserCreationForm()
+    return render(request, "accounts/signup.html", {"form": form})
 
-    return render(request, 'signup.html', {'form': form})
+# @login_required  # Ensures only logged-in users can log out
+# def logout(request):
+#     logout(request)
+#     return redirect("login")  # Redirect to login page after logging out
 
-
+@login_required
 def home(request):
     tasks = StudyTask.objects.all()  # Fetch tasks from the database
     study_plan = None  # Default to None

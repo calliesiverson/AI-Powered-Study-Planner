@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+
+<h1>Your Past Study Plans</h1>
+
+<h3><u><a href="{% url 'home' %}">Home</a></u></h3>
+
+{% if study_plans %}
+    <div class="margin">
+        {% for plan in study_plans %}
+            <div class="capitalize"> <strong>Task:</strong> <a href="{% url 'study_task_detail' plan.id %}">{{ plan.task }}</div></a>
+            <strong>Goal:</strong> {{ plan.goal }}<br>
+            <strong>Time Commitment:</strong> {{ plan.time_commitment }}<br>
+            <strong>Progress:</strong> {{ plan.progress }}%<br>
+            <br>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No past study plans available.</p>
+{% endif %}
+{% endblock %}

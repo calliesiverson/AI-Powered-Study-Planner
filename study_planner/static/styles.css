@@ -1,0 +1,28 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #2c3e50;
+}
+
+h2 {
+    color: #2c3e50;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+div.capitalize {
+  text-transform: capitalize;
+}
+
+div.margin {
+  margin-left: 40px;
+}

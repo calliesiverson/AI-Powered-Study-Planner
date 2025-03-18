@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 import json
 
-# Load API key from environment variable
+# Load API key from .env file for security
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
@@ -20,7 +20,8 @@ def generate_study_plan(task_title, existing_tasks):
     # Handle case where there are no existing tasks
     task_info = "There are no existing tasks. Create a fresh study plan for this new task." if not existing_tasks else f"Consider these existing tasks: {existing_tasks}"
 
-    prompt = f"""
+    # AI prompt to generate a study plan based on user input
+    prompt = f"""                
     You are an AI study planner. Generate a detailed study plan as a **strictly formatted JSON object**.
     
     Task: "{task_title}"
@@ -37,11 +38,14 @@ def generate_study_plan(task_title, existing_tasks):
         }},
         "weekly_breakdown": [ ## Note: add more weeks as needed
             {{"week": 1, "topics": ["topic 1", "topic 2"]}},
-            {{"week": 2, "topics": ["topic 3", "topic 4"]}}
+            {{"week": 2, "topics": ["topic 3", "topic 4"]}},
         ],
-        "daily_breakdown": [
-            {{"day": 1, "study_time": "2 hours", "topics": ["topic A", "topic B"], "breaks": ["break details"]}}
-        ],  ## Note: add days 2-7 * each week included in the weekly breakdown
+        "daily_breakdown": [ 
+            {{"day": 1, "study_time": "2 hours", "topics": ["topic A", "topic B"], "breaks": ["break details"]}},
+            {{"day": 2, "study_time": "1 hour", "topics": ["topic C", "topic D"], "breaks": ["break details"]}},
+            {{"day": 3, "study_time": "2 hours", "topics": ["topic E", "topic F"], "breaks": ["break details"]}},
+            .... ## Note: add 2-7 days per each week included in the weekly breakdown
+        ], 
         "tips": ["list of success tips"]
     }}
 
@@ -76,6 +80,6 @@ def generate_study_plan(task_title, existing_tasks):
         print("✅ Processed Study Plan:", study_plan)  # Debugging
         return study_plan
 
-    except Exception as e:
+    except Exception as e:                      # Handle any API errors
         print(f"❌ API Error: {str(e)}")
         return {"error": "Failed to generate study plan."}

@@ -1,0 +1,16 @@
+<h3>Weekly Breakdown:</h3>
+            {% if task.weekly_breakdown %}
+                <ul>
+                    {% for week in task.weekly_breakdown %}
+                        <li><strong>Week {{ week.week }}</strong>:
+                            <ul>
+                                {% for topic in week.topics %}
+                                    <li>{{ topic }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No weekly breakdown available.</p>
+            {% endif %}

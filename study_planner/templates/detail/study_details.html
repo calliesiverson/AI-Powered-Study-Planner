@@ -1,0 +1,22 @@
+<h3>Goal of the Task:</h3>
+<p>{{ task.goal|default:"Not available" }}</p>
+
+<h3>Time Commitment:</h3>
+<p>{{ task.time_commitment|default:"Not available" }}</p>
+
+<h3>Recommended Resources:</h3>
+{% if task.recommended_resources %}
+    <ul>
+        {% for resource_type, resources in task.recommended_resources.items %}
+            <li><strong>{{ resource_type|capfirst }}</strong>:
+            <ul>
+                {% for resource in resources %}
+                    <li>{{ resource }}</li>
+                {% endfor %}
+            </ul>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No resources available.</p>
+{% endif %}

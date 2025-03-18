@@ -1,10 +1,11 @@
 ﻿<!-- <!DOCTYPE html> 
 <html lang="en">-->
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
     
 <head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Generated Study Plan</title>
@@ -14,15 +15,22 @@
         <h1>AI-Generated Study Plan</h1>
 
         <form method="POST">
-            {% csrf_token %}
-            <label for="task_title">Enter Task:</label>
-            <input type="text" id="task_title" name="task_title" placeholder="e.g., Learn Python Basics" required>
-            <button type="submit">Generate Study Plan</button>
-        </form>
+    {% csrf_token %}
+    <input type="text" name="task_title" placeholder="Enter your task">
+    <button type="submit">Generate Study Plan</button>
+</form>
 
+    <!-- Debug message to see if form submission works -->
+    {% if request.method == "POST" %}
+        <p style="color: blue;">Task submitted successfully!</p>
+    {% endif %}
+
+
+        <h3><u><a href="{% url 'past_study_plans' %}">Past Plans</a></u></h3>
 
         {% if study_plan %}
-            <h2>Task: {{ study_plan.task|default:"Not available" }}</h2>
+            <h3>Task:</h3>
+            <p class="capitalize">{{ study_plan.task|default:"Not available" }}</p>
 
             {% include 'partials/study_details.html' %}
 

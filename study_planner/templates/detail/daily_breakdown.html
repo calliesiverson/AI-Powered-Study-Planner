@@ -1,0 +1,14 @@
+<h3>Daily Breakdown:</h3>
+            {% if task.daily_breakdown %}
+                <ul>
+                    {% for day in task.daily_breakdown %}
+                        <li><strong>Day {{ day.day }}</strong>:
+                            <p>Study Time: {{ day.study_time }}</p>
+                            <p>Topics: {{ day.topics|join:", " }}</p>
+                            <p>Breaks: {{ day.breaks|join:", " }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No daily breakdown available.</p>
+            {% endif %}

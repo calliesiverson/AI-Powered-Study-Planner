@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+<a href="{% url 'past_study_plans' %}">Back to Past Study Plans</a>
+
+<h1>Study Task Details</h1>
+{% if task %}
+            <h3>Task:</h3>
+            <p class="capitalize">{{ task.task|default:"Not available" }}</p>
+
+            {% include 'detail/study_details.html' %}
+
+            {% include 'detail/weekly_breakdown.html' %}
+
+            {% include 'detail/daily_breakdown.html' %}
+
+            {% include 'detail/tips.html' %}
+
+        {% endif %}
+{% endblock %}
+

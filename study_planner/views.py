@@ -52,11 +52,11 @@ def home(request):              # Function to render study plan variable to be u
         user = request.user
         task_title = request.POST.get("task_title")
 
-        if len(task_title) > 100:
+        if len(task_title) > 100:                                                   # Requires task to be 100 characters or less
             messages.error(request, "THE TASK MUST BE 100 CHARACTERS OR LESS")
             return redirect('home')
 
-        existing_task = StudyTask.objects.filter(task__iexact=task_title).first()
+        existing_task = StudyTask.objects.filter(task__iexact=task_title).first()   # Checks if the inputted task is the same as other past tasks
 
         if existing_task:
             messages.error(request, "STUDY PLAN OF SAME NAME ALREADY EXISTS")
@@ -64,7 +64,7 @@ def home(request):              # Function to render study plan variable to be u
 
         # existing_tasks = StudyTask.objects.filter(user=request.user)
         for task in tasks:
-            if similar(task.task, task_title):
+            if similar(task.task, task_title):                                      # Uses Levenshtein python api to check if the inputted task is similar to any past tasks
                 messages.error(request, "SIMILAR STUDY PLAN ALREADY EXISTS")
                 return redirect('home')
 

@@ -1,19 +1,27 @@
-{% load static %}
+﻿{% load static %}
 <head>
 </head>
 <body>
-    <div class="container">
-        <nav>
-            {% if user.is_authenticated %}
+    <div class="bg"></div>
+    <div class="content-container">
+        <div class="container">
+            <nav>
+                {% if user.is_authenticated %}
                 <p>Welcome, {{ user.username }}!</p>
                 <form method="POST" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit">Logout</button>
                 </form>
-            {% endif %}
-        </nav>
+                {% endif %}
+            </nav>
 
-        {% block content %}
-        {% endblock %}
+            {% block content %}
+            {% endblock %}
+        </div>
     </div>
 </body>
+<footer>
+    <p>
+        Photo by <a href="https://unsplash.com/@gulfergin_01?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Gülfer ERGİN</a> on <a href="https://unsplash.com/photos/white-and-brown-book-on-brown-woven-surface-LUGuCtvlk1Q?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+    </p>
+</footer>

@@ -13,6 +13,10 @@
 {% if study_plans %}
     <div class="margin">
         {% for plan in study_plans %}
+            <form method="POST" action="{% url 'delete_study_plan' plan.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this study plan?')">Delete</button>
+            </form>
             <div class="capitalize"> <strong>Task:</strong> <a href="{% url 'study_task_detail' plan.id %}">{{ plan.task }}</div></a>
             <strong>Goal:</strong> {{ plan.goal }}<br>
             <strong>Time Commitment:</strong> {{ plan.time_commitment }}<br>

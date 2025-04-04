@@ -13,4 +13,5 @@ urlpatterns = [
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),               ## Logout url
     path('past_study_plans/', views.past_study_plans, name='past_study_plans'),                             ## Past study plans url
     path("study_task/<int:task_id>/", views.study_task_detail, name="study_task_detail"),                   ## Study task detail url
+    path('delete_study_plan/<int:plan_id>/', views.delete_study_plan, name='delete_study_plan'),
 ]

@@ -8,7 +8,8 @@ from django.contrib import messages
 from .models import StudyTask, UserStreak, Achievement, UserPoints
 from .utils import generate_study_plan
 import logging
-import Levenshtein
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 logger = logging.getLogger(__name__)                ## Logger for debugging
@@ -35,14 +36,32 @@ def signup(request):                                ## Function to signup with a
         form = UserCreationForm()
     return render(request, "accounts/signup.html", {"form": form})
 
-def similar(existing_task, new_task, threshold=0.8):
-    similarity_ratio = Levenshtein.ratio(existing_task.lower(), new_task.lower())
+def similar(existing_task, new_task):
+    # Extract the task field as a string
+    existing_task_title = existing_task.task.lower()
+    new_task_title = new_task.lower()
+    
+    # Now apply TfidfVectorizer to the extracted titles
+    vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = vectorizer.fit_transform([existing_task_title, new_task_title])
+    
+    # Calculate cosine similarity between the two tasks
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
 
-    return similarity_ratio >= threshold
+    feature_names = vectorizer.get_feature_names_out()
+
+    print()
+    print("Tokens:", feature_names)
+    print("Cosine similarity:", similarity[0][0])  # Print the similarity score for debugging
+    print()
+
+    return similarity[0][0]
 
 @login_required                 # Required to be logged in to access the home page
 def home(request):              # Function to render study plan variable to be used in the home page
-    tasks = StudyTask.objects.filter(user=request.user)  # Fetch user's tasks
+    
+    tasks = StudyTask.objects.filter(user=request.user)
+
     study_plan = None
 
     # Initialize study plan variables
@@ -56,15 +75,16 @@ def home(request):              # Function to render study plan variable to be u
             messages.error(request, "THE TASK MUST BE 100 CHARACTERS OR LESS")
             return redirect('home')
 
-        existing_task = StudyTask.objects.filter(task__iexact=task_title).first()   # Checks if the inputted task is the same as other past tasks
+        existing_task = StudyTask.objects.filter(user=request.user, task__iexact=task_title).first()   # Checks if the inputted task is the same as other past tasks
 
         if existing_task:
             messages.error(request, "STUDY PLAN OF SAME NAME ALREADY EXISTS")
             return redirect('home')
 
-        # existing_tasks = StudyTask.objects.filter(user=request.user)
-        for task in tasks:
-            if similar(task.task, task_title):                                      # Uses Levenshtein python api to check if the inputted task is similar to any past tasks
+        existing_tasks = StudyTask.objects.filter(user=request.user)
+
+        for task in existing_tasks:
+            if similar(task, task_title) >= 0.70:                                      # Uses Levenshtein python api to check if the inputted task is similar to any past tasks
                 messages.error(request, "SIMILAR STUDY PLAN ALREADY EXISTS")
                 return redirect('home')
 
@@ -100,7 +120,6 @@ def home(request):              # Function to render study plan variable to be u
                 # study_streak.update_streak(date.today())
 
                 messages.success(request, "Study plan saved successfully!")
-                return redirect('home')
 
     return render(request, "home.html", {           ## Render the home page with the following study plan variables
         "tasks": tasks,           

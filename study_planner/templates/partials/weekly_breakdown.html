@@ -1,4 +1,13 @@
-<h3>Weekly Breakdown:</h3>
+{% load static %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <meta charset="UTF-8">
+    <div class="bg"></div>
+</head>
+<div class="container">
+
+    <h3>Weekly Breakdown:</h3>
             {% if study_plan.weekly_breakdown %}
                 <ul>
                     {% for week in study_plan.weekly_breakdown %}
@@ -14,3 +23,4 @@
             {% else %}
                 <p>No weekly breakdown available.</p>
             {% endif %}
+</div>

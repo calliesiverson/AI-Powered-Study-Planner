@@ -1,4 +1,13 @@
-<h3>Tips for Success:</h3>
+{% load static %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <meta charset="UTF-8">
+    <div class="bg"></div>
+</head>
+<div class="container">
+
+    <h3>Tips for Success:</h3>
             {% if study_plan.tips %}
                 <ul>
                     {% for tip in study_plan.tips %}
@@ -8,3 +17,4 @@
             {% else %}
                 <p>No tips available.</p>
             {% endif %}
+</div>

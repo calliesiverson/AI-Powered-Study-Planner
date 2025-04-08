@@ -1,4 +1,13 @@
-<p><strong>Your Current Points:</strong> {{ user_points }}</p>
+{% load static %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <meta charset="UTF-8">
+    <div class="bg"></div>
+</head>
+<div class="container">
+
+  <p><strong>Your Current Points:</strong> {{ user_points }}</p>
         <h3>Achievements Unlocked:</h3>
         {% for achievement in unlocked_achievements %}
             <p>{{ achievement.name }}: {{ achievement.description }}</p>
@@ -6,3 +15,4 @@
         <div style="width: 100%; background-color: #f3f3f3;">
           <div id="progressBar" style="width: {{ user_points|divisibleby:10 }}%; height: 20px; background-color: #4CAF50;"></div>
         </div>
+</div>

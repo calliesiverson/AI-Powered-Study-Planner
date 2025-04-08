@@ -1,4 +1,12 @@
-<h3>Goal of the Task:</h3>
+{% load static %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <meta charset="UTF-8">
+    <div class="bg"></div>
+</head>
+<div class="container">
+    <h3>Goal of the Task:</h3>
             <p>{{ study_plan.goal|default:"Not available" }}</p>
 
             <h3>Time Commitment:</h3>
@@ -20,3 +28,4 @@
             {% else %}
                 <p>No resources available.</p>
             {% endif %}
+</div>

@@ -14,15 +14,7 @@
 {% if study_plans %}
     
         {% for plan in study_plans %}
-<<<<<<< HEAD
             <a><div class="capitalize"> <strong>Task:</strong> <a href="{% url 'study_task_detail' plan.id %}">{{ plan.task }}</div></a>
-=======
-            <form method="POST" action="{% url 'delete_study_plan' plan.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this study plan?')">Delete</button>
-            </form>
-            <div class="capitalize"> <strong>Task:</strong> <a href="{% url 'study_task_detail' plan.id %}">{{ plan.task }}</div></a>
->>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712
             <strong>Goal:</strong> {{ plan.goal }}<br>
             <strong>Time Commitment:</strong> {{ plan.time_commitment }}<br>
             <strong>Progress:</strong> {{ plan.progress }}%<br>

@@ -8,8 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
-<div class="container">
-<<<<<<< HEAD
+<div class="container clearfix">
 
     <center><h1>AI-Generated Study Plan</h1>
 
@@ -17,47 +16,6 @@
         <p><strong>Current Streak:</strong> <span id="streak-count">{{ user.userstreak.current_streak }}</span> days<br>
         <strong>Total XP Points:</strong> <span id="xp-count">{{ user.userpoints.points }}</span></p>
     </div>
-=======
-    <h1>AI-Generated Study Plan</h1>
-
-    <form method="POST" class="study-form">
-        {% csrf_token %}
-        <input type="text" name="task_title" maxlength="100" required placeholder="Enter your task"> 
-        <button type="submit">Generate Study Plan</button>
-        <i><small><p>Task must be 100 characters or less</p></small></i>
-    </form>
-
-    {% if messages %}
-       {% for message in messages %}
-            <strong>
-                <p style="color: red;"
-                <div class="{{ message.tags }}">{{ message }}</div>
-                </p>
-            </strong>
-        {% endfor %}
-    {% endif %}
-
-
-    <h3><u><a href="{% url 'past_study_plans' %}">Past Plans</a></u></h3>
-
-    {% if study_plan %}
-    <h3>Task:</h3>
-        <p class="capitalize">{{ study_plan.task|default:"Not available" }}</p>
-
-        {% include 'partials/study_details.html' %}
-
-        {% include 'partials/weekly_breakdown.html' %}
-
-        {% include 'partials/daily_breakdown.html' %}
-
-        {% include 'partials/tips.html' %}
-
-    {% endif %}
-
-</div>
-
-{% endblock %}
->>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712
 
     <form method="POST" class="study-form">
         {% csrf_token %}
@@ -89,18 +47,13 @@
     
 
     {% if study_plan %}
-        <h3>Task:</h3>
-        <p><div class="capitalize">{{ study_plan.task|default:"Not available" }}</div></p>
+        <div class="container clearfix"><h3>Task:</h3>
+        <p><div class="capitalize">{{ study_plan.task|default:"Not available" }}</div></p></div>
 
         {% include 'partials/study_details.html' %}
         {% include 'partials/weekly_breakdown.html' %}
         {% include 'partials/daily_breakdown.html' %}
         {% include 'partials/tips.html' %}
-
-        <div class="progress-bar-container">
-            <p><strong>Study Progress:</strong></p>
-            <progress value="{{ study_plan.progress }}" max="100"></progress>
-        </div>
 
     {% endif %}
 </div>

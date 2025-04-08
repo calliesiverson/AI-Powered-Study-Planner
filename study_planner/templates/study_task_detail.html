@@ -9,14 +9,14 @@
     <center><h1>Study Task Details</h1>
     <h3><a href="{% url 'past_study_plans' %}">Back to Past Study Plans</a></center></strong></h3>
 
+    <div class="progress-bar-container">
+        <p><strong>Progress:</strong></p>
+        <progress value="{{ plan.progress }}" max="100"></progress>
+    </div>
+
     {% if task %}
         <h3>Task:</h3>
-        <p class="capitalize">{{ task.task|default:"Not available" }}</p>
-
-        <div class="progress-bar-container">
-            <p><strong>Progress:</strong></p>
-            <progress value="{{ plan.progress }}" max="100"></progress>
-        </div>
+        <p><div class="capitalize">{{ task.task|default:"Not available" }}</div></p>
 
         {% include 'detail/study_details.html' %}
         {% include 'detail/weekly_breakdown.html' %}

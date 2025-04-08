@@ -5,13 +5,10 @@ from django.contrib.auth import login as auth_login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages 
+import logging
 from .models import StudyTask, UserStreak, Achievement, UserPoints
 from .utils import generate_study_plan
-<<<<<<< HEAD
 from datetime import date
-=======
-import logging
->>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -63,9 +60,7 @@ def similar(existing_task, new_task):
 
 @login_required                 # Required to be logged in to access the home page
 def home(request):              # Function to render study plan variable to be used in the home page
-    
-    tasks = StudyTask.objects.filter(user=request.user)
-
+    tasks = StudyTask.objects.filter(user=request.user)  # Fetch user's tasks
     study_plan = None
     user_points, created = UserPoints.objects.get_or_create(user=request.user, defaults={'points': 0})
     user_streak, created = UserStreak.objects.get_or_create(user=request.user, defaults={'current_streak': 0})
@@ -117,20 +112,14 @@ def home(request):              # Function to render study plan variable to be u
                     study_tips=tips
                 )
 
-                # # Add points after study session completion... still in the process of implementation
-                # user_points = UserPoints.objects.get(user=request.user)
-                # points_earned = 10  # Example points awarded
-                # user_points.add_points(points_earned)
+                # Add points after study session completion... still in the process of implementation
+                user_points = UserPoints.objects.get(user=request.user)
+                points_earned = 10  # Example points awarded
+                user_points.add_points(points_earned)
 
-<<<<<<< HEAD
                 # Update streak... still in the process of implementation
                 user_streak, created = UserStreak.objects.get_or_create(user=request.user)
                 user_streak.update_streak(date.today())
-=======
-                # # Update streak... still in the process of implementation
-                # study_streak, created = StudyStreak.objects.get_or_create(user=request.user)
-                # study_streak.update_streak(date.today())
->>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712
 
                 messages.success(request, "Study plan saved successfully!")
 
@@ -156,7 +145,6 @@ def study_task_detail(request, task_id):        ## Function to render the detail
     return render(request, "study_task_detail.html", {"task": task})
 
 @login_required
-<<<<<<< HEAD
 def delete_study_plan(request, task_id):
     study_plan = get_object_or_404(StudyTask, id=task_id)
 
@@ -177,61 +165,46 @@ def update_streak(request):                     ## Function to update the user's
     
     user_streak, _ = UserStreak.objects.get_or_create(user=request.user)
     today = now().date()
-=======
-def delete_study_plan(request, plan_id):
-    study_plan = get_object_or_404(StudyTask, id=plan_id)
->>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712
 
-    if request.method == 'POST':
-        study_plan.delete()  # This deletes the study plan from the database
-        return redirect('past_study_plans')  # Redirect to the past study plans page (or wherever you want)
+    if user_streak.last_study_date == today:
+        return JsonResponse({'message': 'Streak already updated today.'})
 
-    return render(request, 'confirm_delete.html', {'study_plan': study_plan})
-# @login_required
-# def update_streak(request):                     ## Function to update the user's study streak as they login and study... still in the process of implementation
-#     user_streak, _ = UserStreak.objects.get_or_create(user=request.user)
-#     today = now().date()
+    user_streak.update_streak(today)            ## Update the user's streak
 
-#     if user_streak.last_study_date == today:
-#         return JsonResponse({'message': 'Streak already updated today.'})
+    achievements = Achievement.objects.filter(streak_needed__lte=user_streak.current_streak)        ## Check for streak-based achievements and award them to the user
+    for achievement in achievements:
+        achievement.award_to_user(request.user)
 
-#     user_streak.update_streak(today)            ## Update the user's streak
+    return JsonResponse({'message': f'Streak updated! Current streak: {user_streak.current_streak}'})
 
-#     achievements = Achievement.objects.filter(streak_needed__lte=user_streak.current_streak)        ## Check for streak-based achievements and award them to the user
-#     for achievement in achievements:
-#         achievement.award_to_user(request.user)
+@login_required
+def award_points(request):                      ## Function to award points to the user as they complete tasks
+    user_points, _ = UserPoints.objects.get_or_create(user=request.user)
+    points_to_award = 10  # May change this value as needed
 
-#     return JsonResponse({'message': f'Streak updated! Current streak: {user_streak.current_streak}'})
+    user_points.add_points(points_to_award)
 
-# @login_required
-# def award_points(request):                      ## Function to award points to the user as they complete tasks
-#     user_points, _ = UserPoints.objects.get_or_create(user=request.user)
-#     points_to_award = 10  # May change this value as needed
+    achievements = Achievement.objects.filter(points_needed__lte=user_points.points)        ## Check for point-based achievements and award them to the user
+    for achievement in achievements:
+        achievement.award_to_user(request.user)
 
-#     user_points.add_points(points_to_award)
-
-#     achievements = Achievement.objects.filter(points_needed__lte=user_points.points)        ## Check for point-based achievements and award them to the user
-#     for achievement in achievements:
-#         achievement.award_to_user(request.user)
-
-#     return JsonResponse({'message': f'Points awarded! Total points: {user_points.points}'})
+    return JsonResponse({'message': f'Points awarded! Total points: {user_points.points}'})
 
 
-# @login_required
-# def complete_quiz(request):                 ## Function to award points to the user as they complete a quiz
-#     user_points, _ = UserPoints.objects.get_or_create(user=request.user)
-#     quiz_bonus_points = 20  # May change as needed
+@login_required
+def complete_quiz(request):                 ## Function to award points to the user as they complete a quiz
+    user_points, _ = UserPoints.objects.get_or_create(user=request.user)
+    quiz_bonus_points = 20  # May change as needed
 
-#     user_points.add_points(quiz_bonus_points)       ## Award the user with the bonus points depending on correct answers
+    user_points.add_points(quiz_bonus_points)       ## Award the user with the bonus points depending on correct answers
 
-#     return JsonResponse({'message': f'Quiz completed! {quiz_bonus_points} points awarded.'})
+    return JsonResponse({'message': f'Quiz completed! {quiz_bonus_points} points awarded.'})
 
-# @login_required
-# def user_achievements(request):             ## Function to display the user's achievements
-#     achievements = Achievement.objects.filter(users_earned=request.user)
-#     data = [{'name': ach.name, 'description': ach.description} for ach in achievements]
+@login_required
+def user_achievements(request):             ## Function to display the user's achievements
+    achievements = Achievement.objects.filter(users_earned=request.user)
+    data = [{'name': ach.name, 'description': ach.description} for ach in achievements]
     
-<<<<<<< HEAD
     return JsonResponse({'achievements': data})
 
 
@@ -246,6 +219,3 @@ def complete_task(request, task_id):
         except StudyTask.DoesNotExist:
             return JsonResponse({"success": False, "error": "Task not found"})
     return JsonResponse({"success": False, "error": "Invalid request"})
-=======
-#     return JsonResponse({'achievements': data})
->>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712

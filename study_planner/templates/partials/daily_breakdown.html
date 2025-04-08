@@ -1,9 +1,22 @@
-<h3>Daily Breakdown:</h3>
+{% load static %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <meta charset="UTF-8">
+    <div class="bg"></div>
+</head>
+<div class="container">
+    <h3>Daily Breakdown:</h3>
             {% if study_plan.daily_breakdown %}
                 <ul>
                     {% for day in study_plan.daily_breakdown %}
                         <li><strong>Day {{ day.day }}</strong>:
-                            <p>Study Time: {{ day.study_time }}</p>
+                            <p>Study Time: 
+                                {% if day.study_time == 1 %} 
+                                {{ day.study_time }} hour
+                                {% else %} 
+                                {{ day.study_time }} hours 
+                                {% endif %} </p>
                             <p>Topics: {{ day.topics|join:", " }}</p>
                             <p>Breaks: {{ day.breaks|join:", " }}</p>
                         </li>
@@ -12,3 +25,4 @@
             {% else %}
                 <p>No daily breakdown available.</p>
             {% endif %}
+</div>

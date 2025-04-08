@@ -27,7 +27,7 @@ def generate_study_plan(task_title, existing_tasks):
     Task: "{task_title}"
     {task_info}
 
-    Return JSON with the following fields:
+    Return JSON with the following fields:   ## Note: Only include useful information and no filler information. If the task does not take a full four weeks, go to how many weeks/days per week as necessary.
     {{
         "goal": "string",
         "time_commitment": "string",
@@ -40,10 +40,17 @@ def generate_study_plan(task_title, existing_tasks):
             {{"week": 1, "topics": ["topic 1", "topic 2"]}},
             {{"week": 2, "topics": ["topic 3", "topic 4"]}},
         ],
+<<<<<<< HEAD
         "daily_breakdown": [
             {{"day": 1, "study_time": "2 hours", "topics": ["topic A", "topic B"], "breaks": ["break details"]}},       ## Note: For breaks, only include a time after a certain amount of time. Do not include a task within the break.
             {{"day": 2, "study_time": "1 hour", "topics": ["topic C", "topic D"], "breaks": ["break details"]}},
             {{"day": 3, "study_time": "2 hours", "topics": ["topic E", "topic F"], "breaks": ["break details"]}},
+=======
+        "daily_breakdown": [ 
+            {{"day": 1, "study_time": "2 hours", "topics": ["topic A", "topic B"], "breaks": ["break time"]}},  ## Note: In "break time", do not include extra wording. Just do a time.
+            {{"day": 2, "study_time": "1 hour", "topics": ["topic C", "topic D"], "breaks": ["break time"]}},
+            {{"day": 3, "study_time": "2 hours", "topics": ["topic E", "topic F"], "breaks": ["break time"]}}, 
+>>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712
             .... ## Note: add 2-7 days per each week included in the weekly breakdown
         ], 
         "tips": ["list of success tips"]

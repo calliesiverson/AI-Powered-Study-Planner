@@ -13,6 +13,7 @@ urlpatterns = [
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),               ## Logout url
     path('past_study_plans/', views.past_study_plans, name='past_study_plans'),                             ## Past study plans url
     path("study_task/<int:task_id>/", views.study_task_detail, name="study_task_detail"),                   ## Study task detail url
+<<<<<<< HEAD
     path('delete_study_plan/<int:task_id>/', views.delete_study_plan, name='delete_study_plan'),                     ## Delete study plan url
 
     # Gamification elements
@@ -21,4 +22,7 @@ urlpatterns = [
     path("complete_quiz/", views.complete_quiz, name="complete_quiz"),                                      ## Award points for quiz completion
     path("user_achievements/", views.user_achievements, name="user_achievements"),     
     path("complete-task/<int:task_id>/", views.complete_task, name="complete_task"),
+=======
+    path('delete_study_plan/<int:plan_id>/', views.delete_study_plan, name='delete_study_plan'),
+>>>>>>> 8e62d44c66419c301da29236cc7c25fcf0144712
 ]

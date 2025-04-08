@@ -40,8 +40,8 @@ def generate_study_plan(task_title, existing_tasks):
             {{"week": 1, "topics": ["topic 1", "topic 2"]}},
             {{"week": 2, "topics": ["topic 3", "topic 4"]}},
         ],
-        "daily_breakdown": [ 
-            {{"day": 1, "study_time": "2 hours", "topics": ["topic A", "topic B"], "breaks": ["break details"]}},
+        "daily_breakdown": [
+            {{"day": 1, "study_time": "2 hours", "topics": ["topic A", "topic B"], "breaks": ["break details"]}},       ## Note: For breaks, only include a time after a certain amount of time. Do not include a task within the break.
             {{"day": 2, "study_time": "1 hour", "topics": ["topic C", "topic D"], "breaks": ["break details"]}},
             {{"day": 3, "study_time": "2 hours", "topics": ["topic E", "topic F"], "breaks": ["break details"]}},
             .... ## Note: add 2-7 days per each week included in the weekly breakdown

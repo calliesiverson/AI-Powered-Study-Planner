@@ -1,8 +1,12 @@
 {% load static %}
 <head>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <meta charset="UTF-8">
+    <div class="bg"></div>
 </head>
 <body>
     <div class="container">
+    <div class="content-container">
         <nav>
             {% if user.is_authenticated %}
                 <p>Welcome, {{ user.username }}!</p>
@@ -16,4 +20,10 @@
         {% block content %}
         {% endblock %}
     </div>
+    </div>
 </body>
+<footer>
+    <small>
+        Photo by <a href="https://unsplash.com/@gulfergin_01?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Gülfer ERGİN</a> on <a href="https://unsplash.com/photos/white-and-brown-book-on-brown-woven-surface-LUGuCtvlk1Q?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+    </small>
+</footer>

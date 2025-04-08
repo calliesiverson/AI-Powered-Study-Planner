@@ -1,49 +1,65 @@
-﻿<!-- <!DOCTYPE html> 
-<html lang="en">-->
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    
+
 <head>
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Generated Study Plan</title>
 </head>
 
-    <div class="container">
-        <h1>AI-Generated Study Plan</h1>
+<div class="container">
 
-        <form method="POST">
-    {% csrf_token %}
-    <input type="text" name="task_title" placeholder="Enter your task">
-    <button type="submit">Generate Study Plan</button>
-</form>
+    <center><h1>AI-Generated Study Plan</h1>
 
-    <!-- Debug message to see if form submission works -->
-    {% if request.method == "POST" %}
-        <p style="color: blue;">Task submitted successfully!</p>
-    {% endif %}
-
-
-        <h3><u><a href="{% url 'past_study_plans' %}">Past Plans</a></u></h3>
-
-        {% if study_plan %}
-            <h3>Task:</h3>
-            <p class="capitalize">{{ study_plan.task|default:"Not available" }}</p>
-
-            {% include 'partials/study_details.html' %}
-
-            {% include 'partials/weekly_breakdown.html' %}
-
-            {% include 'partials/daily_breakdown.html' %}
-
-            {% include 'partials/tips.html' %}
-
-        {% endif %}
-
+    <div class="gamification-stats">
+        <p><strong>Current Streak:</strong> <span id="streak-count">{{ user.userstreak.current_streak }}</span> days<br>
+        <strong>Total XP Points:</strong> <span id="xp-count">{{ user.userpoints.points }}</span></p>
     </div>
-<!-- </body>
-</html> -->
-{% endblock %}
 
+    <form method="POST" class="study-form">
+        {% csrf_token %}
+        <input type="text" name="task_title" placeholder="Enter your task" required>
+        <button type="submit">Generate Study Plan</button>
+    </form>
+    
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                <strong>
+                    <p style="color: red;"
+                    <div class="{{ message.tags }}">{{ message }}</div>
+                    </p>
+                </strong>
+            {% else %}
+                <strong>
+                    <p style="color: blue;"
+                    <div class="{{ message.tags }}">{{ message }}</div>
+                    </p>
+                </strong>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    </center>
+
+    <center><h3><u><a href="{% url 'past_study_plans' %}">View Past Plans</a></u></h3></center>
+    
+
+    {% if study_plan %}
+        <h3>Task:</h3>
+        <p><div class="capitalize">{{ study_plan.task|default:"Not available" }}</div></p>
+
+        {% include 'partials/study_details.html' %}
+        {% include 'partials/weekly_breakdown.html' %}
+        {% include 'partials/daily_breakdown.html' %}
+        {% include 'partials/tips.html' %}
+
+        <div class="progress-bar-container">
+            <p><strong>Study Progress:</strong></p>
+            <progress value="{{ study_plan.progress }}" max="100"></progress>
+        </div>
+
+    {% endif %}
+</div>
+{% endblock %}

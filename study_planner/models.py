@@ -12,7 +12,8 @@ class StudyTask(models.Model):                              ## StudyTask model f
     daily_breakdown = models.JSONField(default=list)
     study_tips = models.JSONField(default=list)
     progress = models.IntegerField(default=0)
-    
+    completed = models.BooleanField(default=False)
+
     def __str__(self):
         return self.task
 
@@ -42,6 +43,7 @@ class UserStreak(models.Model):                             ## UserStreak model 
     last_study_date = models.DateField(null=True, blank=True)
 
     def update_streak(self, study_date):
+        today = date.today()
         if self.last_study_date is None or (today - self.last_study_date).days > 1:
             self.current_streak = 1  # Reset streak if they skipped a day
         else:

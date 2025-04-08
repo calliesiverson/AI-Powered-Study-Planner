@@ -8,6 +8,10 @@ from django.contrib import messages
 import logging
 from .models import StudyTask, UserStreak, Achievement, UserPoints
 from .utils import generate_study_plan
+from datetime import date
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 logger = logging.getLogger(__name__)                ## Logger for debugging
 
@@ -33,17 +37,58 @@ def signup(request):                                ## Function to signup with a
         form = UserCreationForm()
     return render(request, "accounts/signup.html", {"form": form})
 
+def similar(existing_task, new_task):
+    # Extract the task field as a string
+    existing_task_title = existing_task.task.lower()
+    new_task_title = new_task.lower()
+    
+    # Now apply TfidfVectorizer to the extracted titles
+    vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = vectorizer.fit_transform([existing_task_title, new_task_title])
+    
+    # Calculate cosine similarity between the two tasks
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+
+    feature_names = vectorizer.get_feature_names_out()
+
+    print()
+    print("Tokens:", feature_names)
+    print("Cosine similarity:", similarity[0][0])  # Print the similarity score for debugging
+    print()
+
+    return similarity[0][0]
+
 @login_required                 # Required to be logged in to access the home page
 def home(request):              # Function to render study plan variable to be used in the home page
     tasks = StudyTask.objects.filter(user=request.user)  # Fetch user's tasks
     study_plan = None
+    user_points, created = UserPoints.objects.get_or_create(user=request.user, defaults={'points': 0})
+    user_streak, created = UserStreak.objects.get_or_create(user=request.user, defaults={'current_streak': 0})
+
 
     # Initialize study plan variables
     goal = time_commitment = recommended_resources = weekly_breakdown = daily_breakdown = tips = "Not available"
 
     if request.method == "POST":
-        user = request.user
+        # user = request.user
         task_title = request.POST.get("task_title")
+
+        if len(task_title) > 100:                                                   # Requires task to be 100 characters or less
+            messages.error(request, "THE TASK MUST BE 100 CHARACTERS OR LESS")
+            return redirect('home')
+
+        existing_task = StudyTask.objects.filter(user=request.user, task__iexact=task_title).first()   # Checks if the inputted task is the same as other past tasks
+
+        if existing_task:
+            messages.error(request, "STUDY PLAN OF SAME NAME ALREADY EXISTS")
+            return redirect('home')
+
+        existing_tasks = StudyTask.objects.filter(user=request.user)
+
+        for task in existing_tasks:
+            if similar(task, task_title) >= 0.70:                                      # Uses Levenshtein python api to check if the inputted task is similar to any past tasks
+                messages.error(request, "SIMILAR STUDY PLAN ALREADY EXISTS")
+                return redirect('home')
 
         if task_title:
             study_plan = generate_study_plan(task_title, list(tasks))  # Call AI response function
@@ -73,8 +118,8 @@ def home(request):              # Function to render study plan variable to be u
                 user_points.add_points(points_earned)
 
                 # Update streak... still in the process of implementation
-                study_streak, created = StudyStreak.objects.get_or_create(user=request.user)
-                study_streak.update_streak(date.today())
+                user_streak, created = UserStreak.objects.get_or_create(user=request.user)
+                user_streak.update_streak(date.today())
 
                 messages.success(request, "Study plan saved successfully!")
 
@@ -100,7 +145,24 @@ def study_task_detail(request, task_id):        ## Function to render the detail
     return render(request, "study_task_detail.html", {"task": task})
 
 @login_required
+def delete_study_plan(request, task_id):
+    study_plan = get_object_or_404(StudyTask, id=task_id)
+
+    if request.method == 'POST':
+        study_plan.delete()  # This deletes the study plan from the database
+        return redirect('past_study_plans')  # Redirect to the past study plans page (or wherever you want)
+
+    return render(request, 'confirm_delete.html', {'study_plan': study_plan})
+
+###########################
+## Gamification elements ## 
+###########################
+
+@login_required
 def update_streak(request):                     ## Function to update the user's study streak as they login and study... still in the process of implementation
+    if today is None:
+            today = date.today()  # Ensure today is set
+    
     user_streak, _ = UserStreak.objects.get_or_create(user=request.user)
     today = now().date()
 
@@ -144,3 +206,16 @@ def user_achievements(request):             ## Function to display the user's ac
     data = [{'name': ach.name, 'description': ach.description} for ach in achievements]
     
     return JsonResponse({'achievements': data})
+
+
+@login_required
+def complete_task(request, task_id):
+    if request.method == "POST":
+        try:
+            task = StudyTask.objects.get(id=task_id)
+            task.completed = True
+            task.save()
+            return JsonResponse({"success": True})
+        except StudyTask.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Task not found"})
+    return JsonResponse({"success": False, "error": "Invalid request"})

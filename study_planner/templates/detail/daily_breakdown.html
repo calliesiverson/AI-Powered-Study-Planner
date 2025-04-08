@@ -6,9 +6,113 @@
                             <p>Study Time: {{ day.study_time }}</p>
                             <p>Topics: {{ day.topics|join:", " }}</p>
                             <p>Breaks: {{ day.breaks|join:", " }}</p>
+
+                            <div class="study-session">
+                                 <button onclick="startTimer({{ task.id }}, {{ task.study_time }})" id="start-btn-{{ task.id }}">
+                                    Start Task
+                                </button>
+                                <p id="countdown-{{ task.id }}"></p>
+                            </div>
+
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
                 <p>No daily breakdown available.</p>
             {% endif %}
+
+<script>
+    function startTimer(taskId, studyTime) {
+        console.log("Start Timer clicked for Task ID:", taskId, "with Study Time:", studyTime);
+
+        let timeRemaining = parseInt(studyTime, 10) * 60; // Ensure studyTime is a number
+        if (isNaN(timeRemaining)) {
+            console.error("Invalid studyTime for Task ID:", taskId, "Value:", studyTime);
+            return;
+        }
+
+        let countdownElement = document.getElementById(`countdown-${taskId}`);
+        let startButton = document.getElementById(`start-btn-${taskId}`);
+
+        if (!countdownElement || !startButton) {
+            console.error("Missing elements for Task ID:", taskId);
+            return;
+        }
+
+        startButton.disabled = true; // Disable button
+
+        let timer = setInterval(function () {
+            if (timeRemaining < 0) {
+                clearInterval(timer);
+                countdownElement.innerText = "Time's up! Task complete.";
+                markTaskAsCompleted(taskId);
+                return;
+            }
+
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+
+            // Ensure double digits for formatting
+            countdownElement.innerText = `${minutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
+
+            timeRemaining--;
+        }, 1000);
+    }
+
+
+    function markTaskAsCompleted(taskId) {
+        fetch(`/complete-task/${taskId}/`, {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`task-${taskId}`).style.textDecoration = "line-through"; 
+            } else {
+                alert("Error marking task as complete.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+
+    function startQuiz(taskId) {
+        fetch(`/generate_quiz/${taskId}/`)
+            .then(response => response.json())
+            .then(data => {
+                let quizContainer = document.createElement("div");
+                quizContainer.classList.add("quiz-popup");
+
+                let quizHTML = `<h3>Quiz Time!</h3>`;
+                data.questions.forEach((q, index) => {
+                    quizHTML += `<p>${q.question}</p>`;
+                    q.choices.forEach(choice => {
+                        quizHTML += `<input type="radio" name="q${index}" value="${choice}">${choice}<br>`;
+                    });
+                });
+                quizHTML += `<button onclick="submitQuiz(${taskId})">Submit</button>`;
+                quizContainer.innerHTML = quizHTML;
+                document.body.appendChild(quizContainer);
+            });
+    }
+
+    function submitQuiz(taskId) {
+        let answers = {};
+        document.querySelectorAll(".quiz-popup input:checked").forEach((input, index) => {
+            answers[`q${index}`] = input.value;
+        });
+
+        fetch(`/submit_quiz/${taskId}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
+            body: JSON.stringify(answers)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(`You earned ${data.points} points!`);
+            document.getElementById("xp-count").innerText = data.total_points;
+            document.querySelector(".quiz-popup").remove();
+        });
+    }
+</script>

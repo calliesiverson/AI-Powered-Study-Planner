@@ -5,21 +5,25 @@
 <head>
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
 </head>
-<a href="{% url 'past_study_plans' %}">Back to Past Study Plans</a>
+<div class = "container">
+    <center><h1>Study Task Details</h1>
+    <h3><a href="{% url 'past_study_plans' %}">Back to Past Study Plans</a></center></strong></h3>
 
-<h1>Study Task Details</h1>
-{% if task %}
-            <h3>Task:</h3>
-            <p class="capitalize">{{ task.task|default:"Not available" }}</p>
+    {% if task %}
+        <h3>Task:</h3>
+        <p class="capitalize">{{ task.task|default:"Not available" }}</p>
 
-            {% include 'detail/study_details.html' %}
+        <div class="progress-bar-container">
+            <p><strong>Progress:</strong></p>
+            <progress value="{{ plan.progress }}" max="100"></progress>
+        </div>
 
-            {% include 'detail/weekly_breakdown.html' %}
+        {% include 'detail/study_details.html' %}
+        {% include 'detail/weekly_breakdown.html' %}
+        {% include 'detail/daily_breakdown.html' %}
+        {% include 'detail/tips.html' %}
 
-            {% include 'detail/daily_breakdown.html' %}
-
-            {% include 'detail/tips.html' %}
-
-        {% endif %}
+    {% endif %}
+</div>
 {% endblock %}
 

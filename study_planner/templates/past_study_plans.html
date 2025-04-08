@@ -6,21 +6,28 @@
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
 </head>
 
-<h1>Your Past Study Plans</h1>
+<div class="container">
+<center><h1>Your Past Study Plans</h1>
 
-<h3><u><a href="{% url 'home' %}">Home</a></u></h3>
+<h3><u><a href="{% url 'home' %}">Home</a></u></h3></center>
 
 {% if study_plans %}
-    <div class="margin">
+    
         {% for plan in study_plans %}
-            <div class="capitalize"> <strong>Task:</strong> <a href="{% url 'study_task_detail' plan.id %}">{{ plan.task }}</div></a>
+            <a><div class="capitalize"> <strong>Task:</strong> <a href="{% url 'study_task_detail' plan.id %}">{{ plan.task }}</div></a>
             <strong>Goal:</strong> {{ plan.goal }}<br>
             <strong>Time Commitment:</strong> {{ plan.time_commitment }}<br>
             <strong>Progress:</strong> {{ plan.progress }}%<br>
             <br>
+            <form method="POST" action="{% url 'delete_study_plan' plan.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this study plan?')">Delete</button>
+            </form>
+            <br>
         {% endfor %}
-    </div>
 {% else %}
     <p>No past study plans available.</p>
 {% endif %}
+</div>
+
 {% endblock %}

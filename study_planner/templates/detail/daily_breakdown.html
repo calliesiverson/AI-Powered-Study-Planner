@@ -3,16 +3,23 @@
                 <ul>
                     {% for day in task.daily_breakdown %}
                         <li><strong>Day {{ day.day }}</strong>:
-                            <p>Study Time: {{ day.study_time }}</p>
+                            <p>Study Time: 
+                                {% if day.study_time == 1 %} 
+                                {{ day.study_time }} hour
+                                {% else %} 
+                                {{ day.study_time }} hours 
+                                {% endif %} </p>
                             <p>Topics: {{ day.topics|join:", " }}</p>
                             <p>Breaks: {{ day.breaks|join:", " }}</p>
-
-                            <div class="study-session">
-                                 <button onclick="startTimer({{ task.id }}, {{ task.study_time }})" id="start-btn-{{ task.id }}">
-                                    Start Task
-                                </button>
-                                <p id="countdown-{{ task.id }}"></p>
-                            </div>
+                            
+                            {% if day.study_time > 0 %}
+                                <div class="study-session">
+                                    <button onclick="startTimer({{ task.id }}, {{ task.study_time }})" id="start-btn-{{ task.id }}">
+                                        Start Task
+                                    </button>
+                                    <p id="countdown-{{ task.id }}"></p>
+                                </div>
+                            {% endif %}
 
                         </li>
                     {% endfor %}

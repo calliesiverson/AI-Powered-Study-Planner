@@ -42,10 +42,10 @@ def generate_study_plan(task_title, existing_tasks):
         ],
         "daily_breakdown": [
             {{"day": 1, "study_time": 2, "topics": ["topic A", "topic B"], "breaks": ["break details"]}},       ## Note: For breaks, only include a time after a certain amount of time. Do not include a task within the break.
-            {{"day": 2, "study_time": 1, "topics": ["topic C", "topic D"], "breaks": ["break details"]}},       ## Note: If it is a rest day in "topics", study time should be 0 in "study_time" and "breaks" should be empty.
+            {{"day": 2, "study_time": 1, "topics": ["topic C", "topic D"], "breaks": ["break details"]}},       ## Note: Include no rest days
             {{"day": 3, "study_time": 2, "topics": ["topic E", "topic F"], "breaks": ["break details"]}},       ## Note: "study_time" is a number in hours. It can be a decimal number as well if necessary.
-            .... ## Note: add 2-7 days per each week included in the weekly breakdown                           ## Note: Rest days should be spread out and not fall on consecutive days. Rest days should be mid week and not at the end of the week.
-        ],                                                                                                      ## Note: There should be no more than 1-2 rest days in "topics" per week.
+            .... ## Note: add 2-7 days per each week included in the weekly breakdown                           
+        ],                                                                                                      
         "tips": ["list of success tips"]
     }}
 

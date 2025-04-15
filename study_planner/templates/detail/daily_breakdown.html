@@ -1,4 +1,4 @@
-<h3>Daily Breakdown:</h3>
+﻿<h3>Daily Breakdown:</h3>
             {% if task.daily_breakdown %}
                 <ul>
                     {% for day in task.daily_breakdown %}
@@ -14,10 +14,15 @@
                             
                             {% if day.study_time > 0 %}
                                 <div class="study-session">
-                                    <button onclick="startTimer({{ task.id }}, {{ task.study_time }})" id="start-btn-{{ task.id }}">
-                                        Start Task
-                                    </button>
-                                    <p id="countdown-{{ task.id }}"></p>
+                                    {% if day.completed %}
+                                        <p style="color:Blue;">Study day completed!</p>
+                                        <br>
+                                    {% else %}
+                                        <button onclick="startTimer({{ task.id }}, {{ day.day }}, {{ day.study_time }})" id="start-btn-{{ task.id }}-{{ day.day }}">
+                                            Start Task
+                                        </button>
+                                        <p id="countdown-{{ task.id }}-{{ day.day }}"></p>
+                                    {% endif %}
                                 </div>
                             {% endif %}
 
@@ -28,18 +33,48 @@
                 <p>No daily breakdown available.</p>
             {% endif %}
 
+{% block scripts %}
 <script>
-    function startTimer(taskId, studyTime) {
-        console.log("Start Timer clicked for Task ID:", taskId, "with Study Time:", studyTime);
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
-        let timeRemaining = parseInt(studyTime, 10) * 60; // Ensure studyTime is a number
+
+    function startTimer(taskId, dayNumber, studyTime) {
+        console.log("Start Timer clicked for Task ID:", taskId, "Day:", dayNumber, "with Study Time:", studyTime);
+
+        // let timeRemaining = studyTime * 3600; // Ensure studyTime is converted to minutes
+        
+        // Debugging to test what happens after timer finishes
+        let timeRemaining = studyTime;
+
+        console.log("Converted timeRemaining (in seconds):", timeRemaining);
+        
         if (isNaN(timeRemaining)) {
             console.error("Invalid studyTime for Task ID:", taskId, "Value:", studyTime);
             return;
         }
 
-        let countdownElement = document.getElementById(`countdown-${taskId}`);
-        let startButton = document.getElementById(`start-btn-${taskId}`);
+        let countdownElement = document.getElementById(`countdown-${taskId}-${dayNumber}`);
+        console.log(`countdownElement:`, countdownElement);
+
+        let startButton = document.getElementById(`start-btn-${taskId}-${dayNumber}`);
+
+        // Log the elements to check if they're properly accessed
+        console.log("countdownElement:", countdownElement);
+        console.log("startButton:", startButton);
 
         if (!countdownElement || !startButton) {
             console.error("Missing elements for Task ID:", taskId);
@@ -52,30 +87,67 @@
             if (timeRemaining < 0) {
                 clearInterval(timer);
                 countdownElement.innerText = "Time's up! Task complete.";
-                markTaskAsCompleted(taskId);
+                markTaskAsCompleted(taskId, dayNumber);
                 return;
             }
 
+            // let hours = Math.floor(timeRemaining / 3600);
+            // let minutes = Math.floor((timeRemaining % 3600) / 60);
+            // let seconds = timeRemaining % 60;
+
+            // Shorter time for debugging
             let minutes = Math.floor(timeRemaining / 60);
             let seconds = timeRemaining % 60;
 
             // Ensure double digits for formatting
+            // countdownElement.innerText = `${hours}h ${minutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
+            
+            // For debugging, just show minutes and seconds
             countdownElement.innerText = `${minutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
-
+            
             timeRemaining--;
         }, 1000);
     }
 
 
-    function markTaskAsCompleted(taskId) {
+    function markTaskAsCompleted(taskId, dayNumber) {
         fetch(`/complete-task/${taskId}/`, {
-            method: "POST",
-            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ day_number: dayNumber })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                document.getElementById(`task-${taskId}`).style.textDecoration = "line-through"; 
+                const countdownElement = document.getElementById(`countdown-${taskId}-${dayNumber}`);
+                console.log(`Looking for element: countdown-${taskId}-${dayNumber}`, countdownElement);
+
+                if (!countdownElement) {
+                    console.error(`Element countdown-${taskId}-${dayNumber} not found!`);
+                    return;  // Prevents the error
+                }
+
+                const sessionDiv = countdownElement.parentElement;
+                if (!sessionDiv) {
+                    console.error("Parent element not found!");
+                    return;
+                }
+
+                sessionDiv.innerHTML = `<p>✅ Study day completed!</p>`;
+
+                // Update XP and streak
+                if (document.getElementById("xp-count")) {
+                    document.getElementById("xp-count").innerText = `XP: ${data.xp}`;
+                }
+                if (document.getElementById("streak-count")) {
+                    document.getElementById("streak-count").innerText = `Streak: ${data.streak} days`;
+                }
+                if (document.getElementById("progress-count")) {
+                    document.getElementById("progress-count").innerText = `Progress: ${data.progress}%`;
+                }
             } else {
                 alert("Error marking task as complete.");
             }
@@ -84,42 +156,44 @@
     }
 
 
-    function startQuiz(taskId) {
-        fetch(`/generate_quiz/${taskId}/`)
-            .then(response => response.json())
-            .then(data => {
-                let quizContainer = document.createElement("div");
-                quizContainer.classList.add("quiz-popup");
 
-                let quizHTML = `<h3>Quiz Time!</h3>`;
-                data.questions.forEach((q, index) => {
-                    quizHTML += `<p>${q.question}</p>`;
-                    q.choices.forEach(choice => {
-                        quizHTML += `<input type="radio" name="q${index}" value="${choice}">${choice}<br>`;
-                    });
-                });
-                quizHTML += `<button onclick="submitQuiz(${taskId})">Submit</button>`;
-                quizContainer.innerHTML = quizHTML;
-                document.body.appendChild(quizContainer);
-            });
-    }
+    // function startQuiz(taskId) {
+    //     fetch(`/generate_quiz/${taskId}/`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             let quizContainer = document.createElement("div");
+    //             quizContainer.classList.add("quiz-popup");
 
-    function submitQuiz(taskId) {
-        let answers = {};
-        document.querySelectorAll(".quiz-popup input:checked").forEach((input, index) => {
-            answers[`q${index}`] = input.value;
-        });
+    //             let quizHTML = `<h3>Quiz Time!</h3>`;
+    //             data.questions.forEach((q, index) => {
+    //                 quizHTML += `<p>${q.question}</p>`;
+    //                 q.choices.forEach(choice => {
+    //                     quizHTML += `<input type="radio" name="q${index}" value="${choice}">${choice}<br>`;
+    //                 });
+    //             });
+    //             quizHTML += `<button onclick="submitQuiz(${taskId})">Submit</button>`;
+    //             quizContainer.innerHTML = quizHTML;
+    //             document.body.appendChild(quizContainer);
+    //         });
+    // }
 
-        fetch(`/submit_quiz/${taskId}/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
-            body: JSON.stringify(answers)
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(`You earned ${data.points} points!`);
-            document.getElementById("xp-count").innerText = data.total_points;
-            document.querySelector(".quiz-popup").remove();
-        });
-    }
+    // function submitQuiz(taskId) {
+    //     let answers = {};
+    //     document.querySelectorAll(".quiz-popup input:checked").forEach((input, index) => {
+    //         answers[`q${index}`] = input.value;
+    //     });
+
+    //     fetch(`/submit_quiz/${taskId}/`, {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
+    //         body: JSON.stringify({ day_number: dayNumber })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         alert(`You earned ${data.points} points!`);
+    //         document.getElementById("xp-count").innerText = data.total_points;
+    //         document.querySelector(".quiz-popup").remove();
+    //     });
+    // }
 </script>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import now
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login as auth_login, logout
@@ -6,9 +7,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages 
 import logging
+import json
 from .models import StudyTask, UserStreak, Achievement, UserPoints
 from .utils import generate_study_plan
-from datetime import date
+from datetime import date, timedelta
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -119,7 +121,7 @@ def home(request):              # Function to render study plan variable to be u
 
                 # Update streak... still in the process of implementation
                 user_streak, created = UserStreak.objects.get_or_create(user=request.user)
-                user_streak.update_streak(date.today())
+                # user_streak.update_streak(date.today())
 
                 messages.success(request, "Study plan saved successfully!")
 
@@ -160,11 +162,9 @@ def delete_study_plan(request, task_id):
 
 @login_required
 def update_streak(request):                     ## Function to update the user's study streak as they login and study... still in the process of implementation
-    if today is None:
-            today = date.today()  # Ensure today is set
+    today = now().date()
     
     user_streak, _ = UserStreak.objects.get_or_create(user=request.user)
-    today = now().date()
 
     if user_streak.last_study_date == today:
         return JsonResponse({'message': 'Streak already updated today.'})
@@ -209,13 +209,46 @@ def user_achievements(request):             ## Function to display the user's ac
 
 
 @login_required
+@csrf_exempt
 def complete_task(request, task_id):
-    if request.method == "POST":
+    if request.method == 'POST':
         try:
-            task = StudyTask.objects.get(id=task_id)
-            task.completed = True
-            task.save()
-            return JsonResponse({"success": True})
-        except StudyTask.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Task not found"})
-    return JsonResponse({"success": False, "error": "Invalid request"})
+            data = json.loads(request.body)
+            day_number = data.get("day_number")  # Expecting 1-indexed day
+
+            print("Received day_number:", day_number)  # Debugging
+
+            task = get_object_or_404(StudyTask, id=task_id)
+            breakdown = task.daily_breakdown
+
+            index = int(day_number) - 1
+            if 0 <= index < len(breakdown):
+                breakdown[index]['completed'] = True
+                task.daily_breakdown = breakdown
+                task.save()
+
+                # Update progress
+                completed_days = sum(1 for day in breakdown if day.get("completed"))
+                total_days = len(breakdown)
+                progress = round((completed_days / total_days) * 100)
+                task.progress = progress
+                task.save()
+
+                # Award points
+                user_points, _ = UserPoints.objects.get_or_create(user=task.user)
+                user_points.add_points(10)  # Award 10 XP for completing a task
+
+                # Update streak
+                user_streak, _ = UserStreak.objects.get_or_create(user=task.user)
+                user_streak.update_streak(date.today())
+
+                return JsonResponse({
+                    'success': True,
+                    'xp': user_points.points,
+                    'streak': user_streak.current_streak,
+                    'progress': progress
+                })
+            else:
+                return JsonResponse({'success': False, 'error': 'Invalid day number'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)

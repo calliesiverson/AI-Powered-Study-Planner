@@ -6,7 +6,7 @@ class StudyTask(models.Model):                              ## StudyTask model f
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     task = models.CharField(max_length=255, default="No study task available.")
     goal = models.TextField(default="No goal provided.") 
-    time_commitment = models.CharField(max_length=100, default="No time commitment specified.")
+    time_commitment = models.CharField(max_length=255, default="No time commitment specified.")
     recommended_resources = models.JSONField(default=dict)
     weekly_breakdown = models.JSONField(default=list)
     daily_breakdown = models.JSONField(default=list)

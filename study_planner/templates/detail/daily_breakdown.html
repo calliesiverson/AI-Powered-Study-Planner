@@ -55,10 +55,10 @@
     function startTimer(taskId, dayNumber, studyTime) {
         console.log("Start Timer clicked for Task ID:", taskId, "Day:", dayNumber, "with Study Time:", studyTime);
 
-        // let timeRemaining = studyTime * 3600; // Ensure studyTime is converted to minutes
+        let timeRemaining = studyTime * 3600; // Ensure studyTime is converted to minutes
         
         // Debugging to test what happens after timer finishes
-        let timeRemaining = studyTime;
+        // let timeRemaining = studyTime;
 
         console.log("Converted timeRemaining (in seconds):", timeRemaining);
         
@@ -91,19 +91,19 @@
                 return;
             }
 
-            // let hours = Math.floor(timeRemaining / 3600);
-            // let minutes = Math.floor((timeRemaining % 3600) / 60);
-            // let seconds = timeRemaining % 60;
-
-            // Shorter time for debugging
-            let minutes = Math.floor(timeRemaining / 60);
+            let hours = Math.floor(timeRemaining / 3600);
+            let minutes = Math.floor((timeRemaining % 3600) / 60);
             let seconds = timeRemaining % 60;
 
+            // Shorter time for debugging
+            // let minutes = Math.floor(timeRemaining / 60);
+            // let seconds = timeRemaining % 60;
+
             // Ensure double digits for formatting
-            // countdownElement.innerText = `${hours}h ${minutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
+            countdownElement.innerText = `${hours}h ${minutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
             
             // For debugging, just show minutes and seconds
-            countdownElement.innerText = `${minutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
+            // countdownElement.innerText = `${minutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
             
             timeRemaining--;
         }, 1000);
@@ -155,45 +155,5 @@
         .catch(error => console.error("Error:", error));
     }
 
-
-
-    // function startQuiz(taskId) {
-    //     fetch(`/generate_quiz/${taskId}/`)
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             let quizContainer = document.createElement("div");
-    //             quizContainer.classList.add("quiz-popup");
-
-    //             let quizHTML = `<h3>Quiz Time!</h3>`;
-    //             data.questions.forEach((q, index) => {
-    //                 quizHTML += `<p>${q.question}</p>`;
-    //                 q.choices.forEach(choice => {
-    //                     quizHTML += `<input type="radio" name="q${index}" value="${choice}">${choice}<br>`;
-    //                 });
-    //             });
-    //             quizHTML += `<button onclick="submitQuiz(${taskId})">Submit</button>`;
-    //             quizContainer.innerHTML = quizHTML;
-    //             document.body.appendChild(quizContainer);
-    //         });
-    // }
-
-    // function submitQuiz(taskId) {
-    //     let answers = {};
-    //     document.querySelectorAll(".quiz-popup input:checked").forEach((input, index) => {
-    //         answers[`q${index}`] = input.value;
-    //     });
-
-    //     fetch(`/submit_quiz/${taskId}/`, {
-    //         method: "POST",
-    //         headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
-    //         body: JSON.stringify({ day_number: dayNumber })
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         alert(`You earned ${data.points} points!`);
-    //         document.getElementById("xp-count").innerText = data.total_points;
-    //         document.querySelector(".quiz-popup").remove();
-    //     });
-    // }
 </script>
 {% endblock %}

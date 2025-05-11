@@ -10,10 +10,15 @@
 
 <div class="container clearfix">
 
-    <center><h1>AI-Generated Study Plan</h1>
+    <center><h1>AI-Powered Study Planner</h1>
 
     <div class="gamification-stats">
-        <p><strong>Current Streak:</strong> <span id="streak-count">{{ user.userstreak.current_streak }}</span> days<br>
+        <p><strong>Current Streak:</strong> <span id="streak-count">
+        {% if user.userstreak.current_streak == 1 %} 
+        {{ user.userstreak.current_streak }}</span> day<br>
+        {% else %}
+        { user.userstreak.current_streakd }}</span> days<br>
+        {% endif %}
         <strong>Total XP Points:</strong> <span id="xp-count">{{ user.userpoints.points }}</span></p>
     </div>
 

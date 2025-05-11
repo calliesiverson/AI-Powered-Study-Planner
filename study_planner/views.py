@@ -88,7 +88,7 @@ def home(request):              # Function to render study plan variable to be u
         existing_tasks = StudyTask.objects.filter(user=request.user)
 
         for task in existing_tasks:
-            if similar(task, task_title) >= 0.70:                                      # Uses Levenshtein python api to check if the inputted task is similar to any past tasks
+            if similar(task, task_title) >= 0.70:                                      # Uses cosine similarity to check if the inputted task is similar to other past tasks
                 messages.error(request, "SIMILAR STUDY PLAN ALREADY EXISTS")
                 return redirect('home')
 
